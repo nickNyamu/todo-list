@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { TodoContext } from "../Context/TodoContext";
 import axios from "axios";
 
+
  const Form = () => {
 
   const { input, setInput, addTodo , setTodos, getTodos} = useContext(TodoContext);
@@ -21,7 +22,12 @@ import axios from "axios";
 
       //Here i am calling the getTodos function to get the updated list of todos
         const getTodos = async () => {
-          const apiTodo = await axios.get('http://127.0.0.1:8000/api/todos/todo');
+          const apiTodo = await axios.get('http://127.0.0.1:8000/api/todos/todo', {
+            method: 'GET',
+            withCredentials: true,
+            'Access-Control-Allow-Credentials': 'true',
+          });
+  
           const todosData = apiTodo.data.data.map(todo => ({
             id: todo.id,
             title: todo.title,

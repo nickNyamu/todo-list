@@ -14,7 +14,10 @@ export const TodoProvider = ({ children }) => {
 
   useEffect(() => {
     const getTodos = async () => {
-      const apiTodo = await axios.get('http://127.0.0.1:8000/api/todos/todo');
+      const apiTodo = await axios.get('http://127.0.0.1:8000/api/todos/todo', {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
       const todosData = apiTodo.data.data.map((todo) => ({
         id: todo.id,
         title: todo.title,
@@ -29,7 +32,8 @@ export const TodoProvider = ({ children }) => {
     try {
       const response = await axios.post(
         'http://127.0.0.1:8000/api/todos/todo',
-        newTodo
+        newTodo, {method: 'GET',
+        credentials: 'include',}
       );
 
       const todosData = await fetchTodos();
@@ -40,7 +44,9 @@ export const TodoProvider = ({ children }) => {
   };
 
   const fetchTodos = async () => {
-    const apiTodo = await axios.get('http://127.0.0.1:8000/api/todos/todo');
+    const apiTodo = await axios.get('http://127.0.0.1:8000/api/todos/todo',
+    {method: 'GET',
+    credentials: 'include',});
     const todosData = apiTodo.data.data.map((todo) => ({
       id: todo.id,
       title: todo.title,
@@ -52,8 +58,9 @@ export const TodoProvider = ({ children }) => {
   const updateTodo = async (todoId, newTitle) => {
     try {
       await axios.put(`http://127.0.0.1:8000/api/todos/todo/${todoId}`, {
-        title: newTitle,
-      });
+        title: newTitle
+      },{method: 'GET',
+      credentials: 'include',});
 
       const todosData = await fetchTodos();
       setTodos(todosData);
@@ -66,7 +73,9 @@ export const TodoProvider = ({ children }) => {
     try {
       await axios.put(`http://127.0.0.1:8000/api/todos/todo/${todoId}`, {
         completed: newCompleted,
-      });
+      },{method: 'GET',
+      credentials: 'include',
+      'Access-Control-Allow-Credentials': 'true',});
       // setTodos((prevTodos) =>
       //   prevTodos.map((todo) =>
       //     todo.id === todoId ? { ...todo, completed: newCompleted } : todo
@@ -81,7 +90,8 @@ export const TodoProvider = ({ children }) => {
 
   const deleteTodo = async (todoId) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/todos/todo/${todoId}`);
+      await axios.delete(`http://127.0.0.1:8000/api/todos/todo/${todoId}`,{method: 'GET',
+      credentials: 'include',});
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
     } catch (error) {
       console.error(error);
