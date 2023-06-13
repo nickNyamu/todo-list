@@ -1,5 +1,6 @@
-import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { createContext, useState, useEffect } from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 // Create a context
 export const TodoContext = createContext();
@@ -8,15 +9,20 @@ export const TodoContext = createContext();
 export const TodoProvider = ({ children }) => {
   const [todos, setTodos] = useState([]);
   const [input, setInput] = useState({
-    title: '',
+    title: "",
     completed: false,
   });
 
+  const jwtToken = Cookies.get("jwt_token");
+
   useEffect(() => {
     const getTodos = async () => {
-      const apiTodo = await axios.get('http://127.0.0.1:8000/api/todos/todo', {
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const apiTodo = await axios.get("http://127.0.0.1:8000/api/todos/todo", {
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${jwtToken}`, // Include the JWT token in the request headers
+        },
       });
       const todosData = apiTodo.data.data.map((todo) => ({
         id: todo.id,
@@ -31,9 +37,15 @@ export const TodoProvider = ({ children }) => {
   const addTodo = async (newTodo) => {
     try {
       const response = await axios.post(
-        'http://127.0.0.1:8000/api/todos/todo',
-        newTodo, {method: 'GET',
-        credentials: 'include',}
+        "http://127.0.0.1:8000/api/todos/todo",
+        newTodo,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${jwtToken}`, // Include the JWT token in the request headers
+          },
+        }
       );
 
       const todosData = await fetchTodos();
@@ -44,9 +56,13 @@ export const TodoProvider = ({ children }) => {
   };
 
   const fetchTodos = async () => {
-    const apiTodo = await axios.get('http://127.0.0.1:8000/api/todos/todo',
-    {method: 'GET',
-    credentials: 'include',});
+    const apiTodo = await axios.get("http://127.0.0.1:8000/api/todos/todo", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${jwtToken}`, // Include the JWT token in the request headers
+      },
+    });
     const todosData = apiTodo.data.data.map((todo) => ({
       id: todo.id,
       title: todo.title,
@@ -57,10 +73,19 @@ export const TodoProvider = ({ children }) => {
 
   const updateTodo = async (todoId, newTitle) => {
     try {
-      await axios.put(`http://127.0.0.1:8000/api/todos/todo/${todoId}`, {
-        title: newTitle
-      },{method: 'GET',
-      credentials: 'include',});
+      await axios.put(
+        `http://127.0.0.1:8000/api/todos/todo/${todoId}`,
+        {
+          title: newTitle,
+        },
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${jwtToken}`, // Include the JWT token in the request headers
+          },
+        }
+      );
 
       const todosData = await fetchTodos();
       setTodos(todosData);
@@ -71,11 +96,19 @@ export const TodoProvider = ({ children }) => {
 
   const toggleComplete = async (todoId, newCompleted) => {
     try {
-      await axios.put(`http://127.0.0.1:8000/api/todos/todo/${todoId}`, {
-        completed: newCompleted,
-      },{method: 'GET',
-      credentials: 'include',
-      'Access-Control-Allow-Credentials': 'true',});
+      await axios.put(
+        `http://127.0.0.1:8000/api/todos/todo/${todoId}`,
+        {
+          completed: newCompleted,
+        },
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${jwtToken}`, // Include the JWT token in the request headers
+          },
+        }
+      );
       // setTodos((prevTodos) =>
       //   prevTodos.map((todo) =>
       //     todo.id === todoId ? { ...todo, completed: newCompleted } : todo
@@ -90,15 +123,30 @@ export const TodoProvider = ({ children }) => {
 
   const deleteTodo = async (todoId) => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/todos/todo/${todoId}`,{method: 'GET',
-      credentials: 'include',});
+      await axios.delete(`http://127.0.0.1:8000/api/todos/todo/${todoId}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${jwtToken}`, // Include the JWT token in the request headers
+        },
+      });
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== todoId));
     } catch (error) {
       console.error(error);
     }
   };
   return (
-    <TodoContext.Provider value={{ todos, input, setInput, addTodo, updateTodo, toggleComplete, deleteTodo }}>
+    <TodoContext.Provider
+      value={{
+        todos,
+        input,
+        setInput,
+        addTodo,
+        updateTodo,
+        toggleComplete,
+        deleteTodo,
+      }}
+    >
       {children}
     </TodoContext.Provider>
   );

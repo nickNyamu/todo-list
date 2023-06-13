@@ -1,42 +1,47 @@
-import React from 'react'
-import { Navigate } from 'react-router-dom'
-
+import React from "react";
+import { Navigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const Login = () => {
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [redirect, setRedirect] = React.useState(false)
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [redirect, setRedirect] = React.useState(false);
   const [error, setError] = React.useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-   try {
-    const response = await fetch('http://localhost:8000/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch("http://localhost:8000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!response.ok) {
-      throw new Error(response.statusText);
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+
+      // Extract the JWT token from the response
+      const { token } = await response.json();
+
+      // Store the JWT token in a cookie
+      Cookies.set("jwt_token", token, { expires: 7 }); // Set an expiration of 7 days
+
+      setRedirect(true);
+    } catch (error) {
+      setError("Invalid email or password");
     }
-    
-    setRedirect(true);
-  } catch (error) {
-    setError('Invalid email or password');
+  };
+
+  if (redirect) {
+    return <Navigate to="/home" />;
   }
-};
-
-if (redirect) {
-  return <Navigate to="/home" />;
-}
-
 
   return (
     <>
-        <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             className="mx-auto h-10 w-auto"
@@ -51,7 +56,10 @@ if (redirect) {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="space-y-6" onSubmit={handleSubmit} method="POST">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
                 Email address
               </label>
               <div className="mt-2">
@@ -70,11 +78,17 @@ if (redirect) {
 
             <div>
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
                   Password
                 </label>
                 <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                  <a
+                    href="#"
+                    className="font-semibold text-indigo-600 hover:text-indigo-500"
+                  >
                     Forgot password?
                   </a>
                 </div>
@@ -103,14 +117,17 @@ if (redirect) {
           </form>
 
           <p className="mt-10 text-center text-sm text-gray-500">
-            Not a member?{' '}
-            <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+            Not a member?{" "}
+            <a
+              href="#"
+              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+            >
               Start a 14 day free trial
             </a>
           </p>
         </div>
       </div>
     </>
-  )
-}
-export default Login
+  );
+};
+export default Login;

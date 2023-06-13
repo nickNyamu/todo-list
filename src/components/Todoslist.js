@@ -1,8 +1,9 @@
-import React, { useContext, useState  } from "react";
+import React, { useContext, useState } from "react";
 import { TodoContext } from "../Context/TodoContext";
 
 const TodosList = () => {
-  const { todos , input, setInput, updateTodo, deleteTodo, toggleComplete } = useContext(TodoContext);
+  const { todos, input, setInput, updateTodo, deleteTodo, toggleComplete } =
+    useContext(TodoContext);
   const [editTodoId, setEditTodoId] = useState(null);
 
   const handleEdit = (todoId, todoTitle) => {
@@ -17,7 +18,7 @@ const TodosList = () => {
     const editedTodo = todos.find((todo) => todo.id === editTodoId);
     if (editedTodo) {
       // Call the updateTodo function to update the API
-       updateTodo(editTodoId, input.title);
+      updateTodo(editTodoId, input.title);
     }
     setEditTodoId(null);
     setInput({ ...input, title: "" });
@@ -28,7 +29,7 @@ const TodosList = () => {
   };
 
   const handleToggleComplete = (todoId, completed) => {
-     toggleComplete(todoId, completed);
+    toggleComplete(todoId, completed);
   };
 
   return (
